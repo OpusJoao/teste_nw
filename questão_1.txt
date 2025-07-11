@@ -1,0 +1,7 @@
+Compartilhe uma experiência sua, onde você teve papel fundamental no 
+desenvolvimento da arquitetura de uma aplicação. 
+
+    R: Quando trabalhei para uma fintech, fui contratado para criar uma solução voltada para a geração de relatórios bancários. Como o projeto por completo era algo novo sendo desenvolvido, o maior desafio que eu tinha no momento era apenas lidar com a grande massa de dados, tempo de queries, utilização de recursos e velocidade de aplicação.
+	Para suprir todos os requisitos, foi criado um serviço onde a entrada do processamento era feito por fila utilizando rabbitMQ e através de um builder(design pattern), criava-se o escopo que seria gerado para o relatório. Essa informação transitava internamente até a parte onde era feito o processamento mais bruto do projeto, contendo o resultado das queries e a geração do PDF ou XLSX. Com esse resultado, era feito processamento em batch, salvando aos poucos os arquivos em nuvem e assim completando o ciclo de geração. Todas as informações relacionadas ao processamento eram salvas em etapas no banco de dados Postgres. Todas as etapas de processamento eram comunicadas aos front end utilizando websocket.
+	A entrega do projeto foi um sucesso, em vista que atingiu todas as expectativas e não tivemos problemas relacionado a performance e utilização de recursos. O projeto até hoje é utilizado pela fintech.
+	Caso eu refizesse esse projeto, eu pensaria melhor na forma de criar o builder e escolheria melhor a biblioteca de geração de pdf, afim de obter mais performance.

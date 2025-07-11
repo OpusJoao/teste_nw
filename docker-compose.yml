@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: todo_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+      POSTGRES_DB: todo
+    ports:
+      - '5432:5432'
+    networks:
+      - todo-network
+    # volumes:
+    #   - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: todo_backend
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: root123
+      DB_NAME: todo
+      JWT_SECRET: supersecretkey
+      JWT_EXPIRES_IN: 360s
+      JWT_REFRESH_EXPIRES_IN: 7d
+      HOST_INTERNAL: host.docker.internal
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '3001:3001'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - todo-network
+
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: todo_frontend
+    restart: always
+    env_file:
+      - ./front/.env
+    environment:
+      NEXT_PUBLIC_API_URL: http://host.docker.internal:3001
+    depends_on:
+      - backend
+    ports:
+      - '3000:3000'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
+    driver: bridge
